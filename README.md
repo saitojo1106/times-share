@@ -67,3 +67,7 @@ Webhook URLは端末のSharedPreferencesにのみ保存されます。GitHubへ�
 設定保存後、X・Chrome・Qiita・GitHubなどでURLやテキストを共有し、共有先の「Timesに保存」を選びます。アプリがDiscord Webhookへ送信し、成功すると「Timesに保存しました」と表示して終了します。
 
 共有先に「Timesに保存」が表示されない場合は、アプリを一度起動して設定を保存し、共有内容がテキストとして渡せるアプリから試してください。
+
+## ライセンス
+
+MIT Licenseです。詳細は [LICENSE](LICENSE) を参照してください。
