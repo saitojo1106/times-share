@@ -93,12 +93,16 @@ class MainActivity : AppCompatActivity() {
         items.forEachIndexed { index, item ->
             val row = LinearLayout(this).apply {
                 orientation = LinearLayout.HORIZONTAL
-                setPadding(20, 16, 12, 16)
+                gravity = android.view.Gravity.CENTER_VERTICAL
+                minimumHeight = 88
+                setPadding(20, 12, 12, 12)
             }
             row.addView(TextView(this).apply {
                 text = "${item.name}\n${if (item.threadId.isBlank()) "スレッド指定なし" else "既存スレッド"}"
                 layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
                 textSize = 16f
+                minLines = 2
+                gravity = android.view.Gravity.CENTER_VERTICAL
             })
             row.addView(MaterialButton(this).apply {
                 text = "削除"
