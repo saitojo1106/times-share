@@ -12,18 +12,28 @@ Androidの共有シートから、X / Chrome / Qiita / GitHub などの共有テ
 6. アプリで「送信先を追加」を選び、名前・Webhook URL・既存スレッドID（任意）を保存する
 7. Xなどで「共有」→「Timesに保存」を選択し、送信先を選ぶ
 
-## Discordの設定
+## Discord / Slackの設定
+
+Discordの場合:
 
 1. 保存先のDiscordチャンネルで「チャンネルを編集」→「連携サービス」→「ウェブフック」を開く
 2. 「新しいウェブフック」を作成し、保存先チャンネルを確認する
 3. 「ウェブフックURLをコピー」を押す
-4. アプリの設定画面へURLを貼り付けて保存する
 
-Webhook URLは投稿権限を持つ秘密情報です。GitHub、チャット、スクリーンショットへ貼らないでください。漏れた場合はDiscord側でWebhookを再生成または削除してください。
+Slackの場合:
+
+1. [Slack APIのYour Apps](https://api.slack.com/apps)でアプリを作成する
+2. 「Incoming Webhooks」を有効化する
+3. 「Add New Webhook to Workspace」で投稿先チャンネルを許可する
+4. 発行されたWebhook URLをコピーする
+
+コピーしたURLをアプリの「送信先を追加」へ貼り付けると、URL形式からDiscord / Slackを自動判定します。
+
+Webhook URLは投稿権限を持つ秘密情報です。GitHub、チャット、スクリーンショットへ貼らないでください。漏れた場合は各サービス側でWebhookを再生成または削除してください。
 
 ## Webhookについて
 
-Webhook URLはソースコードや環境変数には入れません。初回起動時に入力し、AndroidのSharedPreferencesへ保存します。そのためリポジトリへWebhookをコミットせずに使えます。
+Webhook URLはソースコードや環境変数には入れません。アプリへ入力し、AndroidのSharedPreferencesへ保存します。そのためリポジトリへWebhookをコミットせずに使えます。Discordは `content`、Slackは `text` として送信します。
 
 ## 複数送信先
 

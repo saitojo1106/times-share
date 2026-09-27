@@ -55,7 +55,7 @@ class MainActivity : AppCompatActivity() {
         }
         layout.addView(TextView(this).apply { text = "Times Share 設定"; textSize = 24f })
         layout.addView(TextView(this).apply {
-            text = "送信先を複数登録できます。共有時に送信先を選択します。Webhook URLは端末内だけに保存されます。"
+            text = "Discord / Slackの送信先を複数登録できます。共有時に送信先を選択します。Webhook URLは端末内だけに保存されます。"
             setPadding(0, 24, 0, 24)
         })
         val list = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
@@ -96,7 +96,7 @@ class MainActivity : AppCompatActivity() {
         }
         val name = EditText(this).apply { hint = "名前（例: Times）" }
         val webhook = EditText(this).apply {
-            hint = "https://discord.com/api/webhooks/..."
+            hint = "DiscordまたはSlackのWebhook URL"
             inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_URI
         }
         val threadId = EditText(this).apply {
@@ -112,8 +112,10 @@ class MainActivity : AppCompatActivity() {
             .setNegativeButton("キャンセル", null)
             .setPositiveButton("保存") { _, _ ->
                 val url = webhook.text.toString().trim()
-                if (!url.startsWith("https://discord.com/api/webhooks/") && !url.startsWith("https://discordapp.com/api/webhooks/")) {
-                    Toast.makeText(this, "Discord Webhook URLを入力してください", Toast.LENGTH_SHORT).show()
+                val isDiscord = url.startsWith("https://discord.com/api/webhooks/") || url.startsWith("https://discordapp.com/api/webhooks/")
+                val isSlack = url.startsWith("https://hooks.slack.com/services/")
+                if (!isDiscord && !isSlack) {
+                    Toast.makeText(this, "DiscordまたはSlackのWebhook URLを入力してください", Toast.LENGTH_SHORT).show()
                     return@setPositiveButton
                 }
                 items += Destination(name.text.toString().trim().ifBlank { "送信先${items.size + 1}" }, url, threadId.text.toString().trim())
@@ -147,7 +149,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun send(item: Destination, content: String) {
         thread {
-            val ok = runCatching { postDiscord(item.webhook, item.threadId, content) }.getOrDefault(false)
+            val ok = runCatching { postWebhook(item.webhook, item.threadId, content) }.getOrDefault(false)
             runOnUiThread {
                 Toast.makeText(this, if (ok) "${item.name}に保存しました ✓" else "送信に失敗しました", Toast.LENGTH_SHORT).show()
                 finish()
@@ -155,9 +157,10 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun postDiscord(webhook: String, threadId: String, content: String): Boolean {
+    private fun postWebhook(webhook: String, threadId: String, content: String): Boolean {
+        val isSlack = webhook.startsWith("https://hooks.slack.com/services/")
         val separator = if (webhook.contains('?')) '&' else '?'
-        val target = if (threadId.isBlank()) webhook else "$webhook${separator}thread_id=$threadId"
+        val target = if (isSlack || threadId.isBlank()) webhook else "$webhook${separator}thread_id=$threadId"
         val connection = (URL(target).openConnection() as HttpURLConnection).apply {
             requestMethod = "POST"
             doOutput = true
@@ -165,7 +168,14 @@ class MainActivity : AppCompatActivity() {
             readTimeout = 10_000
             setRequestProperty("Content-Type", "application/json; charset=utf-8")
         }
-        val payload = JSONObject().put("content", content.take(2000)).toString()
+        val payloadObject = if (isSlack) {
+            JSONObject().put("text", content.take(3000)).apply {
+                if (threadId.isNotBlank()) put("thread_ts", threadId)
+            }
+        } else {
+            JSONObject().put("content", content.take(2000))
+        }
+        val payload = payloadObject.toString()
         connection.outputStream.use { it.write(payload.toByteArray(Charsets.UTF_8)) }
         return connection.responseCode in 200..299
     }
