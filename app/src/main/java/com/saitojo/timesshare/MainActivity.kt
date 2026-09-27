@@ -6,6 +6,8 @@ import android.text.InputType
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
 import org.json.JSONArray
@@ -83,8 +85,16 @@ class MainActivity : AppCompatActivity() {
             setOnClickListener { showDestinationEditor(items) { refreshDestinationList(list, items) } }
             layoutParams = LinearLayout.LayoutParams(-1, -2).apply { topMargin = 16 }
         })
+        val baseTop = 32
+        val baseBottom = 32
+        ViewCompat.setOnApplyWindowInsetsListener(content) { view, insets ->
+            val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            view.setPadding(24, baseTop + bars.top, 24, baseBottom + bars.bottom)
+            insets
+        }
         val scroll = ScrollView(this).apply { addView(content) }
         setContentView(scroll)
+        ViewCompat.requestApplyInsets(scroll)
         refreshDestinationList(list, items)
     }
 
