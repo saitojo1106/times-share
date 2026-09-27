@@ -6,6 +6,8 @@ import android.text.InputType
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import com.google.android.material.button.MaterialButton
+import com.google.android.material.card.MaterialCardView
 import org.json.JSONArray
 import org.json.JSONObject
 import java.net.HttpURLConnection
@@ -49,43 +51,70 @@ class MainActivity : AppCompatActivity() {
 
     private fun showSettings() {
         val items = destinations()
-        val layout = LinearLayout(this).apply {
+        val content = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(48, 64, 48, 48)
+            setPadding(24, 32, 24, 32)
         }
-        layout.addView(TextView(this).apply { text = "Times Share 設定"; textSize = 24f })
-        layout.addView(TextView(this).apply {
-            text = "Discord / Slackの送信先を複数登録できます。共有時に送信先を選択します。Webhook URLは端末内だけに保存されます。"
-            setPadding(0, 24, 0, 24)
+        content.addView(TextView(this).apply { text = "Times Share"; textSize = 30f })
+        content.addView(TextView(this).apply {
+            text = "共有したURLを、DiscordやSlackの指定先へすばやく保存"
+            textSize = 16f
+            setPadding(0, 8, 0, 24)
+        })
+        content.addView(MaterialCardView(this).apply {
+            radius = 24f
+            cardElevation = 0f
+            setContentPadding(24, 20, 24, 20)
+            addView(TextView(this@MainActivity).apply {
+                text = "使い方\n1. 送信先を登録\n2. XやChromeで共有\n3. 「Timesに保存」を選択"
+                textSize = 15f
+            })
+            layoutParams = LinearLayout.LayoutParams(-1, -2).apply { bottomMargin = 24 }
+        })
+        content.addView(TextView(this).apply {
+            text = "登録済みの送信先"
+            textSize = 20f
+            setPadding(0, 0, 0, 12)
         })
         val list = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
-        layout.addView(list)
-        layout.addView(Button(this).apply {
+        content.addView(list)
+        content.addView(MaterialButton(this).apply {
             text = "送信先を追加"
             setOnClickListener { showDestinationEditor(items) { refreshDestinationList(list, items) } }
+            layoutParams = LinearLayout.LayoutParams(-1, -2).apply { topMargin = 16 }
         })
-        setContentView(layout)
+        val scroll = ScrollView(this).apply { addView(content) }
+        setContentView(scroll)
         refreshDestinationList(list, items)
     }
 
     private fun refreshDestinationList(list: LinearLayout, items: MutableList<Destination>) {
         list.removeAllViews()
         items.forEachIndexed { index, item ->
-            val row = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL }
+            val row = LinearLayout(this).apply {
+                orientation = LinearLayout.HORIZONTAL
+                setPadding(20, 16, 12, 16)
+            }
             row.addView(TextView(this).apply {
                 text = "${item.name}\n${if (item.threadId.isBlank()) "スレッド指定なし" else "既存スレッド"}"
                 layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
-                setPadding(0, 12, 8, 12)
+                textSize = 16f
             })
-            row.addView(Button(this).apply {
+            row.addView(MaterialButton(this).apply {
                 text = "削除"
+                isAllCaps = false
                 setOnClickListener {
                     items.removeAt(index)
                     saveDestinations(items)
                     refreshDestinationList(list, items)
                 }
             })
-            list.addView(row)
+            list.addView(MaterialCardView(this).apply {
+                radius = 20f
+                cardElevation = 0f
+                addView(row)
+                layoutParams = LinearLayout.LayoutParams(-1, -2).apply { bottomMargin = 12 }
+            })
         }
     }
 
