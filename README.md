@@ -8,9 +8,9 @@ Androidの共有シートから、X / Chrome / Qiita / GitHub などの共有テ
 2. Gradle Syncを実行（初回はAndroid SDK・依存ライブラリのダウンロードが必要）
 3. Android端末を接続してRun
 4. インストールされた「Timesに保存」を一度起動
-5. Discordで保存先チャンネルのWebhook URLを作成し、アプリに貼って保存
-6. 既存スレッドへ送る場合は、Discordで対象スレッドの「リンクをコピー」を選び、URL末尾の数字をスレッドID欄へ入力
-7. Xなどで「共有」→「Timesに保存」を選択
+5. Discordで保存先チャンネルのWebhook URLを作成する
+6. アプリで「送信先を追加」を選び、名前・Webhook URL・既存スレッドID（任意）を保存する
+7. Xなどで「共有」→「Timesに保存」を選択し、送信先を選ぶ
 
 ## Discordの設定
 
@@ -25,13 +25,21 @@ Webhook URLは投稿権限を持つ秘密情報です。GitHub、チャット、
 
 Webhook URLはソースコードや環境変数には入れません。初回起動時に入力し、AndroidのSharedPreferencesへ保存します。そのためリポジトリへWebhookをコミットせずに使えます。
 
+## 複数送信先
+
+送信先は複数登録できます。各送信先に名前、Webhook URL、既存スレッドIDを保存し、共有時に送信先を選択します。既存スレッドIDを空欄にするとWebhookの標準チャンネルへ送信します。
+
 ## ビルド
 
 Android Studio: Build > Build APK(s)
 
 生成されたAPKは `app/build/outputs/apk/debug/app-debug.apk` に出力されます。
 
-この配布物にはGradle Wrapperを含めていないため、CLIビルドではAndroid StudioまたはローカルのGradle環境が必要です。
+Gradle Wrapperを含んでいるため、CLIでは `./gradlew assembleDebug` でもビルドできます。
+
+## GitHub Releases
+
+`v1.0.0` のようなタグをpushすると、GitHub ActionsがDebug APKをビルドしてGitHub Releaseへ添付します。Actionsの手動実行にも対応しています。公開用の署名鍵はまだ設定していないため、Release APKはテスト・個人利用向けです。
 
 ## 動作確認
 
